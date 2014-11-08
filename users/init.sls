@@ -12,13 +12,15 @@ extend: {{ datamap.sls_extend|default({}) }}
   {%- endif -%}
 {%- endmacro -%}
 
-{% set users = salt['pillar.get']('users:manage', []) %}
+{% set users = salt['pillar.get']('users:manage', {}) %}
+{% set groups = salt['pillar.get']('groups:manage', {}) %}
 
-{% for u in users %}
-user_{{ u.name }}:
+{% for id, u in users|dictsort %}
+  {% set name = u.name|default(id) %}
+user_{{ name }}:
   user:
     - present
-    - name: {{ u.name }}
+    - name: {{ name }}
 {{ set_p('uid', u)|indent(4, True) }}
 {{ set_p('gid', u)|indent(4, True) }}
 {{ set_p('groups', u)|indent(4, True) }}
@@ -29,32 +31,44 @@ user_{{ u.name }}:
 {{ set_p('password', u)|indent(4, True) }}
 {{ set_p('system', u)|indent(4, True) }}
 #    - require:
-#      - group: {{ u.name }}
+#      - group: {{ name }}
 #  group:
 #    - present
-#    - name: {{ u.name }}
+#    - name: {{ name }}
 #{{ set_p('gid', u)|indent(4, True) }}
 #{{ set_p('system', u)|indent(4, True) }}
 
-user_{{ u.name }}_sshdir:
+user_{{ name }}_sshdir:
   file:
     - directory
-    - name: {{ salt['user.info'](u.name).home|default('/home/' ~ u.name) }}/.ssh
+    - name: {{ salt['user.info'](name).home|default('/home/' ~ name) }}/.ssh
     - mode: 700
-    - user: {{ u.name }}
-    - group: {{ u.name }}
+    - user: {{ name }}
+    - group: {{ name }}
     - require:
-      - user: user_{{ u.name }}
-
+      - user: user_{{ name }}
 
   {% for k in u.sshpubkeys|default([]) %}
-user_{{ u.name }}_ssh_auth_{{ k.key[-20:] }}:
+user_{{ name }}_ssh_auth_{{ k.key[-20:] }}:
   ssh_auth:
     - {{ k.ensure|default('present') }}
     - name: {{ k.key }}
-    - user: {{ u.name }}
+    - user: {{ name }}
     - enc: {{ k.enc|default('ssh-rsa') }}
 {{ set_p('comment', k)|indent(4, True) }}
 {{ set_p('options', k)|indent(4, True) }}
   {% endfor %}
+{% endfor %}
+
+{% for id, g in groups|dictsort %}
+  {% set name = g.name|default(id) %}
+group_{{ name }}:
+  group:
+    - present
+    - name: {{ name }}
+{{ set_p('gid', g)|indent(4, True) }}
+{{ set_p('system', g)|indent(4, True) }}
+{{ set_p('addusers', g)|indent(4, True) }}
+{{ set_p('delusers', g)|indent(4, True) }}
+{{ set_p('members', g)|indent(4, True) }}
 {% endfor %}

@@ -2,6 +2,9 @@
 users-formula
 =============
 
+.. image:: https://api.flattr.com/button/flattr-badge-large.png
+    :target: https://flattr.com/submit/auto?user_id=bechtoldt&url=https%3A%2F%2Fgithub.com%2Fbechtoldt%2Fsaltstack-users-formula
+
 Salt Stack Formula for user and group management
 
 NOTICE BEFORE YOU USE
@@ -64,7 +67,8 @@ Salt Compatibility
 
 Tested with:
 
-* Salt Development Version (should mostly work with 2014.1.x too)
+* 2014.1
+* 2014.7
 
 OS Compatibility
 ----------------
