@@ -15,6 +15,19 @@ extend: {{ datamap.sls_extend|default({}) }}
 {% set users = salt['pillar.get']('users:manage', {}) %}
 {% set groups = salt['pillar.get']('groups:manage', {}) %}
 
+{% for id, g in groups|dictsort %}
+  {% set name = g.name|default(id) %}
+group_{{ name }}:
+  group:
+    - present
+    - name: {{ name }}
+{{ set_p('gid', g)|indent(4, True) }}
+{{ set_p('system', g)|indent(4, True) }}
+{{ set_p('addusers', g)|indent(4, True) }}
+{{ set_p('delusers', g)|indent(4, True) }}
+{{ set_p('members', g)|indent(4, True) }}
+{% endfor %}
+
 {% for id, u in users|dictsort %}
   {% set name = u.name|default(id) %}
 user_{{ name }}:
@@ -58,17 +71,4 @@ user_{{ name }}_ssh_auth_{{ k.key[-20:] }}:
 {{ set_p('comment', k)|indent(4, True) }}
 {{ set_p('options', k)|indent(4, True) }}
   {% endfor %}
-{% endfor %}
-
-{% for id, g in groups|dictsort %}
-  {% set name = g.name|default(id) %}
-group_{{ name }}:
-  group:
-    - present
-    - name: {{ name }}
-{{ set_p('gid', g)|indent(4, True) }}
-{{ set_p('system', g)|indent(4, True) }}
-{{ set_p('addusers', g)|indent(4, True) }}
-{{ set_p('delusers', g)|indent(4, True) }}
-{{ set_p('members', g)|indent(4, True) }}
 {% endfor %}

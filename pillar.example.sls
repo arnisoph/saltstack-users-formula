@@ -13,6 +13,8 @@ users:
           comment: host1
         - key: AAAAB3NzaC1yc2EAAAADAQABAAAEAQDahbWStNaRV....
           comment: host2
+          options:
+            - command="echo 'Try again'"
 
 groups:
   manage:
