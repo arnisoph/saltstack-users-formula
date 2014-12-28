@@ -17,6 +17,7 @@ extend: {{ datamap.sls_extend|default({}) }}
 
 {% for id, g in groups|dictsort %}
   {% set name = g.name|default(id) %}
+
 group_{{ name }}:
   group:
     - present
@@ -30,6 +31,8 @@ group_{{ name }}:
 
 {% for id, u in users|dictsort %}
   {% set name = u.name|default(id) %}
+  {% set home_dir = u.home|default(salt['user.info'](name).home|default('/home/' ~ name)) %}
+
 user_{{ name }}:
   user:
     - present
@@ -54,7 +57,7 @@ user_{{ name }}:
 user_{{ name }}_sshdir:
   file:
     - directory
-    - name: {{ salt['user.info'](name).home|default('/home/' ~ name) }}/.ssh
+    - name: {{ home_dir }}/.ssh
     - mode: 700
     - user: {{ name }}
     - group: {{ name }}
@@ -71,4 +74,18 @@ user_{{ name }}_ssh_auth_{{ k.key[-20:] }}:
 {{ set_p('comment', k)|indent(4, True) }}
 {{ set_p('options', k)|indent(4, True) }}
   {% endfor %}
+
+  {% if 'sshconfig' in u %}
+user_{{ name }}_ssh_config:
+  file:
+    - managed
+    - name: {{ home_dir }}/.ssh/config
+    - user: {{ name }}
+    - group: {{ name }}
+    - mode: 640
+    - contents: |
+    {%- for configid, configsettings in u.sshconfig|dictsort %}
+{{ configsettings.content|indent(8, True) }}
+    {% endfor %}
+  {% endif %}
 {% endfor %}

@@ -15,6 +15,11 @@ users:
           comment: host2
           options:
             - command="echo 'Try again'"
+      sshconfig:
+        git_access:
+          content: |
+            Host gitserver.domain.de
+              IdentityFile ~/.ssh/id_rsa_git
 
 groups:
   manage:
