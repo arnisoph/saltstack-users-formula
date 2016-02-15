@@ -14,6 +14,14 @@ extend: {{ datamap.sls_extend|default({}) }}
 
 {% set users = salt['pillar.get']('users:manage', {}) %}
 {% set groups = salt['pillar.get']('groups:manage', {}) %}
+{% set absent_groups = salt['pillar.get']('groups:absent', {}) %}
+
+{% for id, g in absent_groups|dictsort %}
+  {% set name = g.name|default(id) %}
+group_absent_{{ name }}:
+  group.absent:
+    - name: {{ name }}
+{% endfor %}
 
 {% for id, g in groups|dictsort %}
   {% set name = g.name|default(id) %}
