@@ -79,9 +79,12 @@ user_{{ name }}_sshdir:
 
   {% for k in u.sshpubkeys|default([]) %}
 user_{{ name }}_ssh_auth_{{ k.key[-20:] }}:
-  ssh_auth:
-    - {{ k.ensure|default('present') }}
+  ssh_auth.present:
+  {% if k.source is defined %}
+    - source: {{k.source}}
+  {% else %}
     - name: {{ k.key }}
+  {% endif %}
     - user: {{ name }}
     - enc: {{ k.enc|default('ssh-rsa') }}
 {{ set_p('comment', k)|indent(4, True) }}
