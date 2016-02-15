@@ -13,6 +13,7 @@ extend: {{ datamap.sls_extend|default({}) }}
 {%- endmacro -%}
 
 {% set users = salt['pillar.get']('users:manage', {}) %}
+{% set absent_users = salt['pillar.get']('users:absent', {}) %}
 {% set groups = salt['pillar.get']('groups:manage', {}) %}
 {% set absent_groups = salt['pillar.get']('groups:absent', {}) %}
 
@@ -35,6 +36,16 @@ group_{{ name }}:
 {{ set_p('addusers', g)|indent(4, True) }}
 {{ set_p('delusers', g)|indent(4, True) }}
 {{ set_p('members', g)|indent(4, True) }}
+{% endfor %}
+
+{% for id, u in absent_users|dictsort %}
+  {% set name = u.name|default(id) %}
+
+user_absent_{{ name }}:
+  user.absent:
+    - name: {{ name }}
+{{ set_p('purge', u)|indent(4, True) }}
+{{ set_p('force', u)|indent(4, True) }}
 {% endfor %}
 
 {% for id, u in users|dictsort %}
