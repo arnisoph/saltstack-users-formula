@@ -1,5 +1,3 @@
-#!jinja|yaml
-
 {% from 'users/defaults.yaml' import rawmap with context %}
 {% set datamap = salt['grains.filter_by'](rawmap, merge=salt['pillar.get']('users:lookup')) %}
 
@@ -28,8 +26,7 @@ group_absent_{{ name }}:
   {% set name = g.name|default(id) %}
 
 group_{{ name }}:
-  group:
-    - present
+  group.present:
     - name: {{ name }}
 {{ set_p('gid', g)|indent(4, True) }}
 {{ set_p('system', g)|indent(4, True) }}
@@ -53,8 +50,7 @@ user_absent_{{ name }}:
   {% set home_dir = u.home|default(salt['user.info'](name).home|default('/home/' ~ name)) %}
 
 user_{{ name }}:
-  user:
-    - present
+  user.present:
     - name: {{ name }}
 {{ set_p('uid', u)|indent(4, True) }}
 {{ set_p('gid', u)|indent(4, True) }}
@@ -68,8 +64,7 @@ user_{{ name }}:
 {{ set_p('fullname', u)|indent(4, True) }}
 
 user_{{ name }}_sshdir:
-  file:
-    - directory
+  file.directory:
     - name: {{ home_dir }}/.ssh
     - mode: 700
     - user: {{ name }}
@@ -93,8 +88,7 @@ user_{{ name }}_ssh_auth_{{ k.key[-20:] }}:
 
   {% if 'sshconfig' in u %}
 user_{{ name }}_ssh_config:
-  file:
-    - managed
+  file.managed:
     - name: {{ home_dir }}/.ssh/config
     - user: {{ name }}
     - group: {{ name }}
