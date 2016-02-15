@@ -46,13 +46,6 @@ user_{{ name }}:
 {{ set_p('createhome', u)|indent(4, True) }}
 {{ set_p('password', u)|indent(4, True) }}
 {{ set_p('system', u)|indent(4, True) }}
-#    - require:
-#      - group: {{ name }}
-#  group:
-#    - present
-#    - name: {{ name }}
-#{{ set_p('gid', u)|indent(4, True) }}
-#{{ set_p('system', u)|indent(4, True) }}
 
 user_{{ name }}_sshdir:
   file:
