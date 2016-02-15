@@ -65,6 +65,7 @@ user_{{ name }}:
 {{ set_p('createhome', u)|indent(4, True) }}
 {{ set_p('password', u)|indent(4, True) }}
 {{ set_p('system', u)|indent(4, True) }}
+{{ set_p('fullname', u)|indent(4, True) }}
 
 user_{{ name }}_sshdir:
   file:
