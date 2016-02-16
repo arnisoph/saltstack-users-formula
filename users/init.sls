@@ -22,11 +22,13 @@ group_{{ name }}:
   group:
     - {{ g.ensure|default('present') }}
     - name: {{ name }}
+{% if g.ensure is not defined%}
 {{ set_p('gid', g)|indent(4, True) }}
 {{ set_p('system', g)|indent(4, True) }}
 {{ set_p('addusers', g)|indent(4, True) }}
 {{ set_p('delusers', g)|indent(4, True) }}
 {{ set_p('members', g)|indent(4, True) }}
+{% endif %}
 {% endfor %}
 
 {% for id, u in users|dictsort %}
