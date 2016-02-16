@@ -20,7 +20,7 @@ extend: {{ datamap.sls_extend|default({}) }}
 
 group_{{ name }}:
   group:
-    - present
+    - {{ g.ensure|default('present') }}
     - name: {{ name }}
 {{ set_p('gid', g)|indent(4, True) }}
 {{ set_p('system', g)|indent(4, True) }}
@@ -35,8 +35,12 @@ group_{{ name }}:
 
 user_{{ name }}:
   user:
-    - present
+    - {{ u.ensure|default('present') }}
     - name: {{ name }}
+{% if u.ensure is defined and u.ensure == 'absent' %}
+{{ set_p('purge', u)|indent(4, True) }}
+{{ set_p('force', u)|indent(4, True) }}
+{% else %}
 {{ set_p('uid', u)|indent(4, True) }}
 {{ set_p('gid', u)|indent(4, True) }}
 {{ set_p('groups', u)|indent(4, True) }}
@@ -46,6 +50,8 @@ user_{{ name }}:
 {{ set_p('createhome', u)|indent(4, True) }}
 {{ set_p('password', u)|indent(4, True) }}
 {{ set_p('system', u)|indent(4, True) }}
+{{ set_p('fullname', u)|indent(4, True) }}
+
 
 user_{{ name }}_sshdir:
   file:
@@ -81,4 +87,5 @@ user_{{ name }}_ssh_config:
 {{ configsettings.content|indent(8, True) }}
     {% endfor %}
   {% endif %}
+{% endif %}
 {% endfor %}
