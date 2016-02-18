@@ -22,7 +22,7 @@ group_{{ name }}:
   group:
     - {{ g.ensure|default('present') }}
     - name: {{ name }}
-{% if g.ensure is not defined%}
+{% if g.ensure|default('present') == 'present' %}
 {{ set_p('gid', g)|indent(4, True) }}
 {{ set_p('system', g)|indent(4, True) }}
 {{ set_p('addusers', g)|indent(4, True) }}
@@ -39,7 +39,7 @@ user_{{ name }}:
   user:
     - {{ u.ensure|default('present') }}
     - name: {{ name }}
-{% if u.ensure is defined and u.ensure == 'absent' %}
+{% if u.ensure|default('present') == 'absent' %}
 {{ set_p('purge', u)|indent(4, True) }}
 {{ set_p('force', u)|indent(4, True) }}
 {% else %}
