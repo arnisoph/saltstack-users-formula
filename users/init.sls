@@ -20,13 +20,15 @@ extend: {{ datamap.sls_extend|default({}) }}
 
 group_{{ name }}:
   group:
-    - present
+    - {{ g.ensure|default('present') }}
     - name: {{ name }}
+{% if g.ensure|default('present') == 'present' %}
 {{ set_p('gid', g)|indent(4, True) }}
 {{ set_p('system', g)|indent(4, True) }}
 {{ set_p('addusers', g)|indent(4, True) }}
 {{ set_p('delusers', g)|indent(4, True) }}
 {{ set_p('members', g)|indent(4, True) }}
+{% endif %}
 {% endfor %}
 
 {% for id, u in users|dictsort %}
@@ -35,8 +37,12 @@ group_{{ name }}:
 
 user_{{ name }}:
   user:
-    - present
+    - {{ u.ensure|default('present') }}
     - name: {{ name }}
+{% if u.ensure|default('present') == 'absent' %}
+{{ set_p('purge', u)|indent(4, True) }}
+{{ set_p('force', u)|indent(4, True) }}
+{% else %}
 {{ set_p('uid', u)|indent(4, True) }}
 {{ set_p('gid', u)|indent(4, True) }}
 {{ set_p('groups', u)|indent(4, True) }}
@@ -46,6 +52,8 @@ user_{{ name }}:
 {{ set_p('createhome', u)|indent(4, True) }}
 {{ set_p('password', u)|indent(4, True) }}
 {{ set_p('system', u)|indent(4, True) }}
+{{ set_p('fullname', u)|indent(4, True) }}
+
 
 user_{{ name }}_sshdir:
   file:
@@ -61,7 +69,11 @@ user_{{ name }}_sshdir:
 user_{{ name }}_ssh_auth_{{ k.key[-20:] }}:
   ssh_auth:
     - {{ k.ensure|default('present') }}
+  {% if k.source is defined %}
+    - source: {{k.source}}
+  {% else %}
     - name: {{ k.key }}
+  {% endif %}
     - user: {{ name }}
     - enc: {{ k.enc|default('ssh-rsa') }}
 {{ set_p('comment', k)|indent(4, True) }}
@@ -81,4 +93,5 @@ user_{{ name }}_ssh_config:
 {{ configsettings.content|indent(8, True) }}
     {% endfor %}
   {% endif %}
+{% endif %}
 {% endfor %}
